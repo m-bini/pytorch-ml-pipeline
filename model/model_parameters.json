@@ -19,5 +19,13 @@
         "PARAMETERS": {
             "LEARNING_RATE": 0.001
         }
+    },
+    "scheduler": {
+        "NAME": "StepLR", 
+        "PATH": "schedulers/steplr.py", 
+        "PARAMETERS": {
+            "STEP_SIZE": 20,
+            "GAMMA": 0.1
+        }
     }
 }
