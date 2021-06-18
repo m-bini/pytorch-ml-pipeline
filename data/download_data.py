@@ -1,19 +1,18 @@
-from torchvision import datasets
+from torchvision.datasets import MNIST
 from torchvision.transforms import ToTensor
 
 # download dataset and create dataloader
-
 def download_mnist_datasets():
-    train_data = datasets.MNIST(
-        root='data',
-        download=True,
+    train_data = MNIST(
+        root="data",
         train=True,
-        transform=ToTensor()
-    )
-    validation_data = datasets.MNIST(
-        root='data',
         download=True,
+        transform=ToTensor(),
+    )
+    validation_data = MNIST(
+        root="data",
         train=False,
-        transform=ToTensor()
+        download=True,
+        transform=ToTensor(),
     )
     return train_data, validation_data

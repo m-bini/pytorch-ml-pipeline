@@ -1,7 +1,8 @@
 import importlib
 import json
-import pickle
 import os
+import pickle
+
 import torch
 
 class Model:
@@ -19,13 +20,13 @@ class Model:
         self.train = self.create_item_instance("train")
         # outputs
         self.history = None
-    
+
     def update_parameters(self):
         if self.parameters_path:
             with open(self.parameters_path, 'r') as f:
                 self.parameters = json.load(f)
-        return
-    
+        return None
+
     def get_item_class(self, item):
         aux = self.parameters[item]["PATH"].split('/')
         aux[-1] = aux[-1].split(".")[0]
@@ -33,38 +34,38 @@ class Model:
         module = importlib.import_module(aux)
         item_class = getattr(module, self.parameters[item]["NAME"])
         return item_class
-    
     def create_item_instance(self, item):
         if self.parameters:
             if item in self.parameters.keys():
                 item_class = self.get_item_class(item)
                 return item_class(self.parameters[item]["PARAMETERS"])
-        return
-    
+        return None
+
     def create_optimizer(self):
         item_class = self.create_item_instance('optimizer')
         if item_class and self.architecture:
             return item_class(self.architecture.parameters())
-        return 
-    
+        return None
+
     def create_scheduler(self):
         item_class = self.create_item_instance('scheduler')
         if item_class and self.optimizer:
             return item_class(self.optimizer)
-        return 
+        return None
 
     def create_train(self):
         item_class = self.create_item_instance('train')
         if item_class and self.train:
             return item_class(self.train)
-        return 
-    
-    def save(self, filename='model', path_folder='./outputs/', pickle_file=False, json_file=True, weights_file=True, inplace=False):
-        
+        return None
+
+    def save(self, filename='model', path_folder='./outputs/', pickle_file=False,\
+         json_file=True, weights_file=True, inplace=False):
+
         if not os.path.exists(path_folder):
             os.makedirs(path_folder)
             print("Directory " , path_folder ,  " created ")
-        
+
         # check if the user wants to overwrite the file in case it exists
         if inplace:
             filepath = path_folder + f'{filename}' + '.{ext}'
@@ -92,8 +93,9 @@ class Model:
             if self.parameters:
                 with open(filepath.format(ext='json'), 'w') as fp:
                     json.dump(self.parameters, fp)
-            else:    
-                print('No parameters to store. Fill the parameters attribute before saving into json file.')
+            else:
+                print('No parameters to store. Fill the parameters \
+                    attribute before saving into json file.')
         # save model weights into .h5 file
         if weights_file:
             torch.save(
@@ -104,13 +106,11 @@ class Model:
         if pickle_file:
             with open(filepath.format(ext='p'), 'wb') as fp:
                 pickle.dump(self, fp, protocol=pickle.HIGHEST_PROTOCOL)
-        
         return
-        
+
     def do_train(self, train_set, test_set):
         self.history = self.train.train(self, train_set, test_set)
         return self.history
-
 
 
 
@@ -140,7 +140,8 @@ N.loss = M.loss
 N.optimizer = M.optimizer
 N.scheduler = M.scheduler
 '''
-# what can be stored in a model 
+
+# what can be stored in a model
 '''
 print("---__class__\n", N.__class__)
 print("---__dict__\n", N.__dict__)
@@ -158,6 +159,7 @@ print("---loss\n", N.loss)
 print("---optimizer\n", N.optimizer)
 print("---scheduler\n", N.scheduler)
 '''
+
 # save
 '''
 M.save(filename='')
