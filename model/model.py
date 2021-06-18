@@ -16,6 +16,9 @@ class Model:
         self.loss = self.create_item_instance("loss")
         self.optimizer = self.create_optimizer()
         self.scheduler = self.create_scheduler()
+        self.train = self.create_item_instance("train")
+        # outputs
+        self.history = None
     
     def update_parameters(self):
         if self.parameters_path:
@@ -48,6 +51,12 @@ class Model:
         item_class = self.create_item_instance('scheduler')
         if item_class and self.optimizer:
             return item_class(self.optimizer)
+        return 
+
+    def create_train(self):
+        item_class = self.create_item_instance('train')
+        if item_class and self.train:
+            return item_class(self.train)
         return 
     
     def save(self, filename='model', path_folder='./outputs/', pickle_file=False, json_file=True, weights_file=True, inplace=False):
@@ -97,15 +106,21 @@ class Model:
                 pickle.dump(self, fp, protocol=pickle.HIGHEST_PROTOCOL)
         
         return
+        
+    def do_train(self, train_set, test_set):
+        self.history = self.train.train(self, train_set, test_set)
+        return self.history
+
 
 
 
 ### EXAMPLES
 # model creation
-
 '''
 parameters_path = "model/default_parameters.json"
 M = Model(parameters_path=parameters_path)
+print(M.train.__dict__)
+print(M.architecture.__dict__)
 '''
 
 # model items
