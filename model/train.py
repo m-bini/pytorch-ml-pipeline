@@ -1,8 +1,4 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import sys
 from tqdm import tqdm
 
 # train(model, train_set, test_set)
