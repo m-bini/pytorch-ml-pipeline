@@ -3,12 +3,12 @@ from torch import nn
 
 class FeedForwardNet(nn.Module):
 
-    def __init__(self, parameters):
+    def __init__(self, in_dim=1, hidden_dim=1, out_dim=1):
         super().__init__()
 
-        self.in_dim = parameters['in_dim']
-        self.hidden_dim = parameters['hidden_dim']
-        self.out_dim = parameters['out_dim']
+        self.in_dim = in_dim
+        self.hidden_dim = hidden_dim
+        self.out_dim = out_dim
 
         self.flatten = nn.Flatten()
         self.dense_layers = nn.Sequential(

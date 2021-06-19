@@ -3,10 +3,10 @@ from tqdm import tqdm
 import numpy as np
 
 class Train():
-    def __init__(self, parameters):
-        self.epochs = parameters['EPOCHS']
-        self.batch_size = parameters['BATCH_SIZE']
-        self.log_interval = parameters['LOG_INTERVAL']
+    def __init__(self, epochs=2, batch_size=1, log_interval=1):
+        self.epochs = epochs
+        self.batch_size = batch_size
+        self.log_interval = log_interval
         self.device = self.set_device()
         self.num_workers = self.set_num_workers()
         self.pin_memory = self.set_pin_memory()
@@ -115,7 +115,9 @@ class Train():
         return loss, accuracy
 
     def train(self, model, train_set, test_set):
+        # send architecture to device
         model.architecture.to(self.device)
+        # set dataloaders
         train_loader = torch.utils.data.DataLoader(
             train_set,
             batch_size=self.batch_size,
