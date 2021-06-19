@@ -18,6 +18,7 @@ class Model:
         self.optimizer = self.create_optimizer()
         self.scheduler = self.create_scheduler()
         self.train = self.create_item_instance("train")
+        self.earlystopping = self.create_item_instance("earlystopping")
         # outputs
         self.history = None
 
@@ -34,6 +35,7 @@ class Model:
         module = importlib.import_module(aux)
         item_class = getattr(module, self.parameters[item]["NAME"])
         return item_class
+        
     def create_item_instance(self, item):
         if self.parameters:
             if item in self.parameters.keys():
@@ -74,9 +76,7 @@ class Model:
             aux = [f for f in os.listdir(path_folder) if os.path.isfile(''.join([path_folder, f]))]
             aux = [f for f in aux if f[:len(filename)]==f'{filename}']
             aux = [f[len(filename):].split('.')[0] for f in aux]
-            print(aux)
             aux = [f.strip('_').split('_')[0] for f in aux]
-            print(aux)
             aux_numeric =  [int(f) for f in aux if f.isnumeric()]
             if aux_numeric:
                 filepath = path_folder + f'{filename}_{max(aux_numeric) + 1}' + '.{ext}'
@@ -111,7 +111,6 @@ class Model:
     def do_train(self, train_set, test_set):
         self.history = self.train.train(self, train_set, test_set)
         return self.history
-
 
 
 ### EXAMPLES
