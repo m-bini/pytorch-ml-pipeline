@@ -1,9 +1,6 @@
 import torch
-#from tqdm import tqdm
-#from functools import partial
 from tqdm import tqdm
-# as std_tqdm
-#tqdm = partial(std_tqdm, dynamic_ncols=True)
+import numpy as np
 
 class Train():
     def __init__(self, parameters):
@@ -41,16 +38,12 @@ class Train():
         # find most likely label index for each element in the batch
         return tensor.argmax(dim=-1)
 
-    #import time as sleep
-
-    def train_epoch(self, model, train_loader, epoch):
+    def train_epoch(self, model, train_loader):
         model.architecture.train()
 
         losses = []
         accuracy = []
 
-        print(f'Epoch: {epoch}')
-        
         pbar = tqdm(total=len(train_loader.dataset))
 
         for batch_idx, (X, y) in enumerate(train_loader):
@@ -79,32 +72,28 @@ class Train():
             # print training stats
             pbar.update(len(X))
             if batch_idx % self.log_interval == 0:
-                s = "-- TRAIN Loss: {loss:.4f}, Accuracy: {perc_correct:.0f}%"
+                s = "-- TRAIN Loss: {loss:.4f}, Accuracy: {perc_correct:.1f}%"
                 d = {
                     'loss': loss.item(),
                     'perc_correct': 100. * correct / len(X)
                 }
                 pbar.set_description(s.format(**d))
-                #pbar.set_description(f"-- TRAIN Loss: {loss.item():.4f}, Accuracy: {100. * correct / len(X):.0f}%")
 
         pbar.close()
 
-        return losses, accuracy
+        return np.mean(losses), accuracy
 
     def test_epoch(self, model, test_loader):
         model.architecture.eval()
         correct = 0
-        losses = []
-
-        #print(f'Test Epoch: {epoch}')
+        loss = 0
 
         for X, y in test_loader:
 
             X = X.to(self.device)
             y = y.to(self.device)
 
-            # apply transform and model on whole batch directly on device
-            #X = transform(X)
+            # apply model on whole batch directly on device
             output = model.architecture(X)
 
             # count number of correct predictions
@@ -112,19 +101,18 @@ class Train():
             correct += self.number_of_correct(pred, y)
 
             # save losses
-            loss = model.loss(output.squeeze(), y)
-            losses.append(loss.item())
+            loss += model.loss(output.squeeze(), y)/len(test_loader)
 
         accuracy = correct/len(test_loader.dataset)
 
-        s = "-- TEST  Loss: {loss:.4f}, Accuracy: {perc_correct:.0f}%"
+        s = "-- TEST  Loss: {loss:.4f}, Accuracy: {perc_correct:.1f}%"
         d = {
             'loss': loss.item(),
             'perc_correct': 100. * accuracy
         }
         print(s.format(**d))
 
-        return losses, accuracy
+        return loss, accuracy
 
     def train(self, model, train_set, test_set):
         model.architecture.to(self.device)
@@ -144,19 +132,24 @@ class Train():
             pin_memory=self.pin_memory,
         )
 
-        train_losses = {}
-        train_accuracies = {}
-        test_losses = {}
-        test_accuracies = {}
+        train_loss = []
+        train_accuracy = []
+        test_loss = []
+        test_accuracy = []
 
         for epoch in range(1, self.epochs + 1):
-            train_losses[epoch], train_accuracies[epoch] = \
-                self.train_epoch(model, train_loader, epoch)
-            test_losses[epoch], test_accuracies[epoch] = \
-                self.test_epoch(model, test_loader)
+            print(f'Epoch: {epoch}')
+            # append new metrics
+            loss, accuracy = self.train_epoch(model, train_loader)
+            train_loss.append(loss)
+            train_accuracy.append(accuracy)
+            loss, accuracy = self.test_epoch(model, test_loader)
+            test_loss.append(loss)
+            test_accuracy.append(accuracy)
+            # update learning rate
             model.scheduler.step()
 
-        return train_losses, train_accuracies, test_losses, test_accuracies
+        return train_loss, train_accuracy, test_loss, test_accuracy
 
 
 # EXAMPLE
