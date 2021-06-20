@@ -42,7 +42,8 @@
         "PATH": "model/earlystopping/earlystopping.py", 
         "PARAMETERS": {
             "patience": 1,
-            "mode": "min"
+            "mode": "min",
+            "metric": "loss"
         }
     }
 }
