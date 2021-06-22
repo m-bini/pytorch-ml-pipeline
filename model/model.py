@@ -2,6 +2,7 @@ import importlib
 import json
 import os
 import pickle
+import pandas as pd
 
 import torch
 
@@ -20,7 +21,7 @@ class Model:
         self.train = self.create_item_instance("train")
         self.earlystopping = self.create_item_instance("earlystopping")
         # outputs
-        self.history = None
+        self.history = pd.DataFrame()
 
     def update_parameters(self):
         if self.parameters_path:
@@ -61,8 +62,8 @@ class Model:
             return item_class(self.train)
         return None
 
-    def save(self, filename='model', path_folder='./outputs/', pickle_file=False,\
-         json_file=True, weights_file=True, inplace=False):
+    def save(self, filename='model', path_folder='./output/', pickle_file=False,\
+         json_file=True, weights_file=True, history_file=True, inplace=False):
 
         if not os.path.exists(path_folder):
             os.makedirs(path_folder)
@@ -106,6 +107,15 @@ class Model:
         if pickle_file:
             with open(filepath.format(ext='p'), 'wb') as fp:
                 pickle.dump(self, fp, protocol=pickle.HIGHEST_PROTOCOL)
+
+        # save history into .csv file
+        if history_file:
+            # check if there are values to store
+            if not self.history.empty:
+                self.history.to_csv(filepath.format(ext='csv'))
+            else:
+                print('No history to store. Train the model \
+                    before saving into csv file.')
         return
 
     def do_train(self, train_set, test_set):
