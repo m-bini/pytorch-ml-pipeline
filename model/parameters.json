@@ -8,9 +8,9 @@
             "out_dim" : 10
         }
     },
-    "loss": {
+    "criterion": {
         "NAME": "BinaryCrossEntropy", 
-        "PATH": "model/losses/binarycrossentropy.py", 
+        "PATH": "model/criterions/binarycrossentropy.py", 
         "PARAMETERS": {}
     },
     "optimizer": {
@@ -32,7 +32,7 @@
         "NAME": "Train", 
         "PATH": "model/train.py", 
         "PARAMETERS": {
-            "epochs": 30,
+            "epochs": 3,
             "batch_size": 256,
             "log_interval": 5
         }
@@ -42,7 +42,8 @@
         "PATH": "model/earlystopping/earlystopping.py", 
         "PARAMETERS": {
             "patience": 3,
-            "mode": "min"
+            "mode": "min",
+            "delta": 0.001
         }
     }
 }
